@@ -2,85 +2,81 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Gaji;
+use App\Models\Karyawan;
 use Illuminate\Http\Request;
 
 class GajiController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        // Mock Data Gaji sesuai Wireframe
-        $gaji = [
-            (object)[
-                'id' => 1,
-                'nama_karyawan' => 'Ahmad Fauzi',
-                'bonus' => 500000,
-                'tanggal' => '2023-10-25',
-            ],
-            (object)[
-                'id' => 2,
-                'nama_karyawan' => 'Siti Aminah',
-                'bonus' => 250000,
-                'tanggal' => '2023-10-25',
-            ],
-            (object)[
-                'id' => 3,
-                'nama_karyawan' => 'Rudi Hartono',
-                'bonus' => 0, // Tidak ada bonus
-                'tanggal' => '2023-10-26',
-            ],
-        ];
-
+        $gaji = Gaji::with('karyawan')->latest()->get();
         return view('gaji.index', compact('gaji'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        return view('gaji.create');
+        $karyawan = Karyawan::all();
+        return view('gaji.create', compact('karyawan'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'karyawan_id' => 'required|exists:karyawans,id',
+            'gaji_pokok' => 'required|numeric|min:0',
+            'bonus' => 'required|numeric|min:0',
+            'potongan' => 'required|numeric|min:0',
+            'tanggal' => 'required|date',
+        ]);
+
+        $total = $request->gaji_pokok + $request->bonus - $request->potongan;
+
+        Gaji::create([
+            'karyawan_id' => $request->karyawan_id,
+            'gaji_pokok' => $request->gaji_pokok,
+            'bonus' => $request->bonus,
+            'potongan' => $request->potongan,
+            'total_gaji' => $total,
+            'tanggal' => $request->tanggal,
+        ]);
+
+        return redirect()->route('gaji.index')->with('success', 'Data gaji berhasil disimpan!');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function edit(Gaji $gaji)
     {
-        //
+        $karyawan = Karyawan::all();
+        return view('gaji.edit', compact('gaji', 'karyawan'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function update(Request $request, Gaji $gaji)
     {
-        //
+        $request->validate([
+            'karyawan_id' => 'required|exists:karyawans,id',
+            'gaji_pokok' => 'required|numeric|min:0',
+            'bonus' => 'required|numeric|min:0',
+            'potongan' => 'required|numeric|min:0',
+            'tanggal' => 'required|date',
+        ]);
+
+        $total = $request->gaji_pokok + $request->bonus - $request->potongan;
+
+        $gaji->update([
+            'karyawan_id' => $request->karyawan_id,
+            'gaji_pokok' => $request->gaji_pokok,
+            'bonus' => $request->bonus,
+            'potongan' => $request->potongan,
+            'total_gaji' => $total,
+            'tanggal' => $request->tanggal,
+        ]);
+
+        return redirect()->route('gaji.index')->with('success', 'Data gaji berhasil diperbarui!');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy(Gaji $gaji)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $gaji->delete();
+        return redirect()->route('gaji.index')->with('success', 'Data gaji berhasil dihapus!');
     }
 }

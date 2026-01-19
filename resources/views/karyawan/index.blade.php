@@ -37,6 +37,10 @@
                                     <tr>
                                         <th scope="col"
                                             class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            No
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                             Nama Karyawan
                                         </th>
                                         <th scope="col"
@@ -63,84 +67,51 @@
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @foreach ($karyawan as $k)
-                                        <tr class="hover:bg-gray-50 transition-colors duration-150">
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm font-bold text-gray-900">{{ $k->nama }}</div>
+                                        <tr
+                                            class="border-b border-gray-100 {{ $loop->odd ? 'bg-gray-100' : 'bg-white' }} hover:bg-gray-200 transition-colors">
+                                            <td class="p-4 font-bold text-gray-900">{{ $loop->iteration }}</td>
+                                            <td class="p-4 font-medium">{{ $k->nama }}</td>
+                                            <td class="p-4">
+                                                <span
+                                                    class="px-2 py-1 rounded text-xs font-bold {{ $k->jenis_kelamin == 'Laki-laki' ? 'bg-blue-100 text-blue-800' : 'bg-pink-100 text-pink-800' }}">
+                                                    {{ substr($k->jenis_kelamin, 0, 1) }}
+                                                </span>
                                             </td>
-
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                @if ($k->jenis_kelamin == 'Laki-laki')
-                                                    <span
-                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
-                                                        <svg class="mr-1.5 h-2 w-2 text-blue-400" fill="currentColor"
-                                                            viewBox="0 0 8 8">
-                                                            <circle cx="4" cy="4" r="3" />
-                                                        </svg>
-                                                        Laki-laki
-                                                    </span>
-                                                @else
-                                                    <span
-                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-pink-50 text-pink-700 border border-pink-100">
-                                                        <svg class="mr-1.5 h-2 w-2 text-pink-400" fill="currentColor"
-                                                            viewBox="0 0 8 8">
-                                                            <circle cx="4" cy="4" r="3" />
-                                                        </svg>
-                                                        Perempuan
-                                                    </span>
-                                                @endif
-                                            </td>
-
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                <div class="flex items-center gap-2">
-                                                    <svg class="w-4 h-4 text-gray-400" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                                        </path>
-                                                    </svg>
-                                                    {{ $k->tgl_lahir }}
-                                                </div>
-                                            </td>
-
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-600">
-                                                {{ $k->no_tlpn }}
-                                            </td>
-
-                                            <td class="px-6 py-4">
-                                                <div class="text-sm text-gray-500 max-w-[200px] truncate"
-                                                    title="{{ $k->alamat }}">
-                                                    {{ $k->alamat }}
-                                                </div>
-                                            </td>
-
-                                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                                <div class="flex justify-center space-x-4">
-                                                    <button
-                                                        class="text-indigo-600 hover:text-indigo-900 transition-colors flex items-center gap-1 group"
+                                            <td class="p-4 text-sm">
+                                                {{ \Carbon\Carbon::parse($k->tgl_lahir)->format('d M Y') }}</td>
+                                            <td class="p-4 text-sm font-mono">{{ $k->no_tlpn }}</td>
+                                            <td class="p-4 text-sm truncate max-w-xs" title="{{ $k->alamat }}">
+                                                {{ Str::limit($k->alamat, 20) }}</td>
+                                            <td class="p-4 text-center">
+                                                <div class="flex justify-center items-center space-x-4">
+                                                    <a href="{{ route('karyawan.edit', $k->id) }}"
+                                                        class="text-indigo-600 hover:text-indigo-900 hover:scale-110 transition-transform"
                                                         title="Edit">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor"
                                                             viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                 stroke-width="2"
                                                                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
                                                             </path>
                                                         </svg>
-                                                        <span class="text-xs group-hover:underline">Edit</span>
-                                                    </button>
-
-                                                    <button
-                                                        class="text-red-500 hover:text-red-700 transition-colors flex items-center gap-1 group"
-                                                        title="Hapus">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                            viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                                            </path>
-                                                        </svg>
-                                                        <span class="text-xs group-hover:underline">Hapus</span>
-                                                    </button>
+                                                    </a>
+                                                    <form id="delete-form-{{ $k->id }}"
+                                                        action="{{ route('karyawan.destroy', $k->id) }}" method="POST"
+                                                        class="inline-block">
+                                                        @csrf @method('DELETE')
+                                                        <button type="button"
+                                                            onclick="confirmDelete(event, 'delete-form-{{ $k->id }}')"
+                                                            class="text-red-500 hover:text-red-700 hover:scale-110 transition-transform pt-1"
+                                                            title="Hapus">
+                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                                                </path>
+                                                            </svg>
+                                                        </button>
+                                                    </form>
                                                 </div>
                                             </td>
                                         </tr>

@@ -2,41 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Gaji;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class LaporanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Mock Data Laporan Gaji
-        // Di aplikasi nyata, ini hasil join tabel karyawan + jabatan + kehadiran + gaji
-        $laporan = [
-            (object)[
-                'id' => 1,
-                'nama_karyawan' => 'Ahmad Fauzi',
-                'jabatan' => 'Manager Toko',
-                'gaji_pokok' => 7000000,
-                'potongan' => 50000, // Misal terlambat 1x
-                'total_gaji' => 6950000 + 500000 // Gaji - Potongan + Bonus (misal)
-            ],
-            (object)[
-                'id' => 2,
-                'nama_karyawan' => 'Siti Aminah',
-                'jabatan' => 'Kasir',
-                'gaji_pokok' => 3500000,
-                'potongan' => 0,
-                'total_gaji' => 3500000 + 250000
-            ],
-            (object)[
-                'id' => 3,
-                'nama_karyawan' => 'Rudi Hartono',
-                'jabatan' => 'Staff Gudang',
-                'gaji_pokok' => 3200000,
-                'potongan' => 25000,
-                'total_gaji' => 3175000
-            ],
-        ];
+        $periode = $request->input('periode', date('Y-m'));
 
-        return view('laporan.index', compact('laporan'));
+        $parts = explode('-', $periode);
+        $tahun = $parts[0];
+        $bulan = $parts[1];
+
+        $laporan = Gaji::join('karyawans', 'gajis.karyawan_id', '=', 'karyawans.id')
+            ->whereMonth('gajis.tanggal', $bulan)
+            ->whereYear('gajis.tanggal', $tahun)
+            ->select(
+                'gajis.*',
+                'karyawans.nama as nama_karyawan',
+                'karyawans.jabatan as jabatan'
+            )
+            ->latest('gajis.tanggal')
+            ->get();
+
+        return view('laporan.index', compact('laporan', 'periode'));
     }
 }

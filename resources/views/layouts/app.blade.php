@@ -22,11 +22,6 @@
 
         <!-- Page Heading -->
         @isset($header)
-            <header class="bg-white shadow">
-                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    {{ $header }}
-                </div>
-            </header>
         @endisset
 
         <!-- Page Content -->
@@ -34,6 +29,53 @@
             {{ $slot }}
         </main>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Cek apakah ada session "success" dari Controller
+        @if (session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: "{{ session('success') }}",
+                showConfirmButton: false,
+                timer: 2000,
+                position: 'center', // Bisa ganti 'top-end' jika ingin di pojok
+                timerProgressBar: true
+            });
+        @endif
+
+        // Cek apakah ada session "error"
+        @if (session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: "{{ session('error') }}",
+            });
+        @endif
+
+        function confirmDelete(event, formId) {
+            event.preventDefault();
+
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Data yang dihapus tidak dapat dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(formId).submit();
+                }
+            })
+        }
+    </script>
+</body>
+
+</html>
 </body>
 
 </html>

@@ -12,6 +12,7 @@
             main {
                 margin-left: 0 !important;
                 padding: 0 !important;
+                width: 100% !important;
             }
 
             body {
@@ -19,8 +20,15 @@
             }
 
             .shadow-sm {
-                shadow: none !important;
+                box-shadow: none !important;
                 border: 1px solid #ddd !important;
+            }
+
+            /* Hilangkan scroll saat print */
+            .overflow-y-auto,
+            .overflow-x-auto {
+                overflow: visible !important;
+                height: auto !important;
             }
         }
     </style>
@@ -43,19 +51,23 @@
                     </div>
 
                     <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                        <div
-                            class="flex items-center bg-white border border-gray-300 rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500">
-                            <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                </path>
-                            </svg>
-                            <span class="text-sm text-gray-500 mr-2 font-medium">Periode:</span>
-                            <input type="month"
-                                class="text-sm border-none focus:ring-0 text-gray-700 bg-transparent outline-none cursor-pointer font-semibold p-0"
-                                value="2025-08">
-                        </div>
+
+                        <form method="GET" action="{{ route('laporan.index') }}">
+                            <div
+                                class="flex items-center bg-white border border-gray-300 rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500">
+                                <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                                <span class="text-sm text-gray-500 mr-2 font-medium">Periode:</span>
+
+                                <input type="month" name="periode"
+                                    class="text-sm border-none focus:ring-0 text-gray-700 bg-transparent outline-none cursor-pointer font-semibold p-0"
+                                    value="{{ $periode }}" onchange="this.form.submit()">
+                            </div>
+                        </form>
 
                         <button onclick="window.print()"
                             class="inline-flex items-center justify-center px-4 py-2 bg-gray-800 border border-transparent rounded-lg font-medium text-sm text-white shadow-sm hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all gap-2">
@@ -72,7 +84,8 @@
                 <div class="hidden print:block text-center mb-8 border-b-2 border-gray-800 pb-4">
                     <h1 class="text-3xl font-bold text-gray-900 uppercase tracking-wider">Namira Mart</h1>
                     <h2 class="text-xl text-gray-600 mt-1">Laporan Gaji Karyawan</h2>
-                    <p class="text-sm text-gray-500 mt-2">Periode: Agustus 2025</p>
+                    <p class="text-sm text-gray-500 mt-2">Periode:
+                        {{ \Carbon\Carbon::parse($periode)->translatedFormat('F Y') }}</p>
                 </div>
 
                 <div class="max-w-7xl mx-auto">
@@ -83,32 +96,26 @@
                                     <tr>
                                         <th scope="col"
                                             class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                            Nama Karyawan
-                                        </th>
+                                            Nama Karyawan</th>
                                         <th scope="col"
                                             class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                            Jabatan
-                                        </th>
+                                            Jabatan</th>
                                         <th scope="col"
                                             class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                            Gaji Pokok
-                                        </th>
+                                            Gaji Pokok</th>
                                         <th scope="col"
                                             class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                            Potongan
-                                        </th>
+                                            Potongan</th>
                                         <th scope="col"
                                             class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                            Total Gaji
-                                        </th>
+                                            Total Gaji</th>
                                         <th scope="col"
                                             class="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider no-print">
-                                            Aksi
-                                        </th>
+                                            Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
-                                    @foreach ($laporan as $lap)
+                                    @forelse ($laporan as $lap)
                                         <tr class="hover:bg-gray-50 transition-colors duration-150">
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="text-sm font-bold text-gray-900">{{ $lap->nama_karyawan }}
@@ -161,7 +168,13 @@
                                                 </button>
                                             </td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="px-6 py-10 text-center text-gray-500">
+                                                Tidak ada data gaji untuk periode ini.
+                                            </td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
 
                                 <tfoot class="bg-gray-50 font-bold text-gray-900">
@@ -170,7 +183,7 @@
                                             class="px-6 py-3 text-right uppercase text-xs tracking-wider">Total
                                             Pengeluaran:</td>
                                         <td class="px-6 py-3 font-mono text-emerald-700">
-                                            Rp {{ number_format(collect($laporan)->sum('total_gaji'), 0, ',', '.') }}
+                                            Rp {{ number_format($laporan->sum('total_gaji'), 0, ',', '.') }}
                                         </td>
                                         <td class="no-print"></td>
                                     </tr>
